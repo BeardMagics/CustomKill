@@ -30,7 +30,7 @@
   - Kills, deaths, max killstreaks
   - Pagination and ranking system
   - Categories including kills, deaths, assists, ms (maxstreak)
-  - Future: damage category
+  - Future: damage category, top clan category [kills / deaths / assists] 
  
 #### `.stats` - Stats
 - Displays users stats including:
