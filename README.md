@@ -4,8 +4,7 @@
 
 ## 🔧 Main Features
 -Clan name + player name + max level in feed
--Assist system
--Killstreak / MaxStreak system
+-Kills / Deaths / Assists / MaxStreak system
 -LiteDB persistent data storage
 
 ### ✅ Enhanced Killfeed in Chat
@@ -26,18 +25,23 @@
 
 ### 📊 Custom Commands
 
-#### `.lb` – Leaderboard
+#### `.top` [category] – Leaderboard (top 5 players)
 - Displays an aesthetic **leaderboard** with:
   - Kills, deaths, max killstreaks
   - Pagination and ranking system
-
+  - Categories including kills, deaths, assists, ms (maxstreak)
+  - Future: damage category
+ 
+#### `.stats` - Stats
+- Displays users stats including:
+- Kills, Deaths, Assists, Max Killstreak
+- Future: Add damage tracking for damage
 
 #### `.pi` – Player Info
 - Displays detailed **player info**:
   - Name, clan, level, clan members, and connection status
   - Name in **green** = connected  
   - Name in **red** = offline
-
 
 ---
 
@@ -46,6 +50,22 @@
   - Text colors
   - Level difference thresholds
   - Discord webhook URL for kill notifications
+
+---
+
+### 🎨 Color Settings (.top / .stats)
+- Customizable color settings
+  - Title (change appearance when --Top 5 players-- or --Username Stats-- is read from config)
+  - Kills/Deaths/Assists/Maxstreak
+  - Customizable for both .top and .stats respectively
+
+---
+
+### ❗ Admin Flagging System
+- Configurable system for adding admin only restrictions
+  - Config file of CustomKill.cfg
+  - Configrable to set each category as viewable by all or by admin
+  - Config flag field: `RestrictKillsToAdmin` = `boolean` (true / false)
 
 ---
 
