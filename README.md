@@ -1,6 +1,11 @@
 # 🩸 CustomKill
 
 **CustomKill** is a fork of BestKillfeed specifically refactored to use LiteDB and for the Blood Wars server.
+Credits and copyright: 
+Credit for original author(s)
+- Deca (retired)
+- Sunrise (https://github.com/SunrisesvRising/BestKillfeed)
+- Morphine (Phlebotomist) (https://github.com/phlebotomist/PvPDetails)
 
 ## 🔧 Main Features
 -Clan name + player name + max level in feed
@@ -75,6 +80,12 @@ Better overhead performance and reliability.
 Reduced load for server resources (i.e. no saving to json file)
 
 ---
+
+### Misc Info:
+All source is distributed as is. I do not own any strict rights to any material contained within.
+You are free to copy, modify, change, enhance, distribute as you see fit.
+I ask that you include the original authors (top of the readme) and myself for credits and contributions.
+You can contact me on discord in the V-Rising Modding discord. Username BeardMagics.
 
 ## 📝 License
 
