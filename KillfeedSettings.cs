@@ -6,6 +6,7 @@ namespace CustomKill
     public static class KillfeedSettings
     {
         // .top Admin Restrictions — updated names to match references in .top command
+        public static ConfigEntry<bool> RestrictDamageToAdmin;
         public static ConfigEntry<bool> RestrictKillsToAdmin;
         public static ConfigEntry<bool> RestrictDeathsToAdmin;
         public static ConfigEntry<bool> RestrictAssistsToAdmin;
@@ -36,6 +37,7 @@ namespace CustomKill
             WebhookURL = config.Bind("Discord", "WebhookURL", "", "Discord Webhook URL for broadcasting kill messages.");
 
             // Admin-only restrictions for .top command
+            RestrictDamageToAdmin = config.Bind("TopAccess", "RestrictDamageToAdmin", false, "Restrict access to the 'damage' leaderboard to admins only.");
             RestrictKillsToAdmin = config.Bind("TopAccess", "RestrictKillsToAdmin", false, "Restrict access to the 'kills' leaderboard to admins only.");
             RestrictDeathsToAdmin = config.Bind("TopAccess", "RestrictDeathsToAdmin", true, "Restrict access to the 'deaths' leaderboard to admins only.");
             RestrictAssistsToAdmin = config.Bind("TopAccess", "RestrictAssistsToAdmin", false, "Restrict access to the 'assists' leaderboard to admins only.");

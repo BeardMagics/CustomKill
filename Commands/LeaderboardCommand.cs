@@ -1,4 +1,4 @@
-using CustomKill.Database;
+﻿using CustomKill.Database;
 using CustomKill.Services;
 using System;
 using System.Linq;

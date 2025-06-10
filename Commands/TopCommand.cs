@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using ProjectM;
 using ProjectM.Network;
 using Unity.Entities;

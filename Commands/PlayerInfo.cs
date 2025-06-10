@@ -1,4 +1,4 @@
-using ProjectM;
+﻿using ProjectM;
 using ProjectM.Network;
 using Unity.Entities;
 using VampireCommandFramework;

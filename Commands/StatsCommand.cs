@@ -1,4 +1,4 @@
-using CustomKill.Database;
+﻿using CustomKill.Database;
 using ProjectM;
 using ProjectM.Network;
 using System.Linq;

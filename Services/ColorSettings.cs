@@ -7,6 +7,7 @@ namespace CustomKill.Config
     {
         // .top Config Entries
         public static ConfigEntry<string> Top_TitleColor;
+        public static ConfigEntry<string> Top_DamageColor;
         public static ConfigEntry<string> Top_KillsColor;
         public static ConfigEntry<string> Top_DeathsColor;
         public static ConfigEntry<string> Top_AssistsColor;
@@ -15,6 +16,7 @@ namespace CustomKill.Config
 
         // .stats Config Entries
         public static ConfigEntry<string> Stats_TitleColor;
+        public static ConfigEntry<string> Stats_DamageColor;
         public static ConfigEntry<string> Stats_KillsColor;
         public static ConfigEntry<string> Stats_DeathsColor;
         public static ConfigEntry<string> Stats_AssistsColor;
@@ -29,6 +31,7 @@ namespace CustomKill.Config
             var topConfig = new ConfigFile(topPath, true);
 
             Top_TitleColor = topConfig.Bind("TopColors", "TitleColor", "#ffaa00", "Color for the title in .top");
+            Top_DamageColor = topConfig.Bind("TopColors", "DamageColor", "#ffffff", "Color for the damage in .top");
             Top_KillsColor = topConfig.Bind("TopColors", "KillsColor", "#55ff55", "Color for kills shown");
             Top_DeathsColor = topConfig.Bind("TopColors", "DeathsColor", "#ff5555", "Color for deaths shown");
             Top_AssistsColor = topConfig.Bind("TopColors", "AssistsColor", "#aaaaaa", "Color for assists shown");
@@ -40,6 +43,7 @@ namespace CustomKill.Config
             var statsConfig = new ConfigFile(statsPath, true);
 
             Stats_TitleColor = statsConfig.Bind("StatsColors", "TitleColor", "#00aaff", "Color for the title in .stats");
+            Stats_DamageColor = statsConfig.Bind("StatsColors", "DamageColor", "#ffffff", "Color for the damage in .stats");
             Stats_KillsColor = statsConfig.Bind("StatsColors", "KillsColor", "#55ff55", "Color for kills shown");
             Stats_DeathsColor = statsConfig.Bind("StatsColors", "DeathsColor", "#ff5555", "Color for deaths shown");
             Stats_AssistsColor = statsConfig.Bind("StatsColors", "AssistsColor", "#aaaaaa", "Color for assists shown");

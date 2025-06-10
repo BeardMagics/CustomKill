@@ -1,0 +1,11 @@
+{
+    "name": "CustomKill",
+    "version_number": "1.0.0",
+    "website_url": "",
+    "description": "CustomKill is a fork of BestKillfeed specifically refactored to use LiteDB and for the Blood Wars server.",
+    "dependencies": [
+      "deca-VampireCommandFramework-0.10.3"
+      "LiteDB-5.0.21"
+      "BepInEx-1.733.2"
+    ]
+}
