@@ -1,4 +1,4 @@
-﻿using CustomKill.Database;
+using CustomKill.Database;
 using CustomKill.Services;
 using System;
 using System.Linq;
@@ -36,10 +36,11 @@ namespace CustomKill.Commands
                 int rank = i + 1;
 
                 var line = $"<color=#aaaaaa>#{rank}</color> <color=#ffffff>{name}</color> - " +
-                           $"Kills: <color=#55ff55>{stats.Kills}</color> / " +
-                           $"Deaths: <color=#ff5555>{stats.Deaths}</color> / " +
-                           $"Assists: <color=#ff555{stats.Assists}</color> / " +
-                           $"Max Streak: <color=#55aaff>{stats.MaxStreak}</color>";
+                           $"<color=#ffffff>#{KillfeedSettings.RestrictDamageToAdmin.Value}{stats.Damage}</color> " +
+                           $"Kills: <color=#55ff55>{KillfeedSettings.RestrictKillsToAdmin.Value}{stats.Kills}</color> / " +
+                           $"Deaths: <color=#ff5555>{KillfeedSettings.RestrictDeathsToAdmin.Value}{stats.Deaths}</color> / " +
+                           $"Assists: <color=#ff555{KillfeedSettings.RestrictAssistsToAdmin.Value}{stats.Assists}</color> / " +
+                           $"Max Streak: <color=#55aaff>{KillfeedSettings.RestrictMaxStreakToAdmin.Value}{stats.MaxStreak}</color>";
                 ctx.Reply(line);
             }
 
@@ -51,6 +52,7 @@ namespace CustomKill.Commands
             if (playerRank > 0)
             {
                 var selfLine = $"<color=#ffaa00>#{playerRank}</color> <color=#ffffff>{playerName}</color> - " +
+                               $"<color=#ffffff>#{playerStats.Damage}</color> " +
                                $"Kills: <color=#55ff55>{playerStats.Kills}</color> / " +
                                $"Deaths: <color=#ff5555>{playerStats.Deaths}</color> / " +
                                $"Assists: <color=#ff5555>{playerStats.Assists}</color> / " +
