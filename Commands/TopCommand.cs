@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using ProjectM;
 using ProjectM.Network;
 using Unity.Entities;
@@ -30,6 +30,7 @@ namespace CustomKill.Commands
                 // Build usage response with dynamic "(Admin Only)" tags
                 string usageHelp = "<color=#ff5555>Missing or invalid category.</color> Usage: <color=#ffff00>.top [category]</color>\n" +
                                    "Categories:\n" +
+                                   $" <color=#ffaa00>damage</color>{(KillfeedSettings.RestrictDamageToAdmin.Value ? " (Admin Only)" : "")}\n" +
                                    $" <color=#ffaa00>kills</color>{(KillfeedSettings.RestrictKillsToAdmin.Value ? " (Admin Only)" : "")}\n" +
                                    $" <color=#ffaa00>deaths</color>{(KillfeedSettings.RestrictDeathsToAdmin.Value ? " (Admin Only)" : "")}\n" +
                                    $" <color=#ffaa00>assists</color>{(KillfeedSettings.RestrictAssistsToAdmin.Value ? " (Admin Only)" : "")}\n" +
@@ -45,6 +46,12 @@ namespace CustomKill.Commands
                 if (normalizedCategory == "ms") normalizedCategory = "maxstreak";
 
                 // Admin restrictions based on config
+                if (normalizedCategory == "damage" && KillfeedSettings.RestrictDamageToAdmin.Value && !ctx.Event.User.IsAdmin)
+                {
+                    ctx.Reply("<color=#ff5555>Access to the 'damage' leaderboard is restricted to admins only.</color>");
+                    return;
+                }
+
                 if (normalizedCategory == "kills" && KillfeedSettings.RestrictKillsToAdmin.Value && !ctx.Event.User.IsAdmin)
                 {
                     ctx.Reply("<color=#ff5555>Access to the 'kills' leaderboard is restricted to admins only.</color>");
@@ -69,7 +76,7 @@ namespace CustomKill.Commands
                     return;
                 }
 
-                var validCategories = new[] { "kills", "deaths", "assists", "maxstreak" };
+                var validCategories = new[] { "damage", "kills", "deaths", "assists", "maxstreak" };
                 if (!validCategories.Contains(normalizedCategory))
                 {
                     ctx.Reply(usageHelp);
@@ -78,6 +85,7 @@ namespace CustomKill.Commands
 
                 var topPlayers = normalizedCategory switch
                 {
+                    "damage" => allStats.Where(p => (p.Value.Damage ?? 0) > 0).OrderByDescending(p => p.Value.Damage ?? 0).Take(5),
                     "kills" => allStats.Where(p => (p.Value.Kills ?? 0) > 0).OrderByDescending(p => p.Value.Kills ?? 0).Take(5),
                     "deaths" => allStats.Where(p => (p.Value.Deaths ?? 0) > 0).OrderByDescending(p => p.Value.Deaths ?? 0).Take(5),
                     "assists" => allStats.Where(p => (p.Value.Assists ?? 0) > 0).OrderByDescending(p => p.Value.Assists ?? 0).Take(5),
@@ -98,6 +106,7 @@ namespace CustomKill.Commands
                 {
                     string color = normalizedCategory switch
                     {
+                        "damage" => ColorSettings.Top_DamageColor.Value,
                         "kills" => ColorSettings.Top_KillsColor.Value,
                         "deaths" => ColorSettings.Top_DeathsColor.Value,
                         "assists" => ColorSettings.Top_AssistsColor.Value,
@@ -107,6 +116,7 @@ namespace CustomKill.Commands
 
                     int value = normalizedCategory switch
                     {
+                        "damage" => player.Value.Damage ?? 0,
                         "kills" => player.Value.Kills ?? 0,
                         "deaths" => player.Value.Deaths ?? 0,
                         "assists" => player.Value.Assists ?? 0,
