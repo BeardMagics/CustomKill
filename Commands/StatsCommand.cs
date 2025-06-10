@@ -1,4 +1,4 @@
-﻿using CustomKill.Database;
+using CustomKill.Database;
 using ProjectM;
 using ProjectM.Network;
 using System.Linq;
@@ -25,7 +25,8 @@ namespace CustomKill.Commands
                               (stats.Deaths ?? 0) == 0 &&
                               (stats.Assists ?? 0) == 0 &&
                               (stats.KillStreak ?? 0) == 0 &&
-                              (stats.MaxStreak ?? 0) == 0;
+                              (stats.MaxStreak ?? 0) == 0 &&
+                              stats.Damage.GetValueOrDefault() == 0;
 
             if (hasNoStats)
             {
@@ -38,18 +39,22 @@ namespace CustomKill.Commands
             bool isAdmin = ctx.Event.User.IsAdmin;
 
             // Control display based on permissions
-            string killsDisplay = ((isSelf || isAdmin || !KillfeedSettings.RestrictKillsToAdmin.Value) ?
-                                   $"{stats.Kills}" : "<color=#888888>Hidden</color>");
-            string deathsDisplay = ((isSelf || isAdmin || !KillfeedSettings.RestrictDeathsToAdmin.Value) ?
-                                   $"{stats.Deaths}" : "<color=#888888>Hidden</color>");
-            string assistsDisplay = ((isSelf || isAdmin || !KillfeedSettings.RestrictAssistsToAdmin.Value) ?
-                                   $"{stats.Assists}" : "<color=#888888>Hidden</color>");
-            string maxStreakDisplay = ((isSelf || isAdmin || !KillfeedSettings.RestrictMaxStreakToAdmin.Value) ?
-                                   $"{stats.MaxStreak}" : "<color=#888888>Hidden</color>");
-            string killStreakDisplay = $"{stats.KillStreak ?? 0}"; // Always show current streak
+            string damageDisplay = (isSelf || isAdmin || !KillfeedSettings.RestrictDamageToAdmin.Value)
+                                      ? $"{stats.Damage}" : "<color=#888888>Hidden</color>";
+            string killsDisplay = (isSelf || isAdmin || !KillfeedSettings.RestrictKillsToAdmin.Value)
+                                      ? $"{stats.Kills}" : "<color=#888888>Hidden</color>";
+            string deathsDisplay = (isSelf || isAdmin || !KillfeedSettings.RestrictDeathsToAdmin.Value)
+                                      ? $"{stats.Deaths}" : "<color=#888888>Hidden</color>";
+            string assistsDisplay = (isSelf || isAdmin || !KillfeedSettings.RestrictAssistsToAdmin.Value)
+                                      ? $"{stats.Assists}" : "<color=#888888>Hidden</color>";
+            string maxStreakDisplay = (isSelf || isAdmin || !KillfeedSettings.RestrictMaxStreakToAdmin.Value)
+                                      ? $"{stats.MaxStreak}" : "<color=#888888>Hidden</color>";
+            string killStreakDisplay = $"{stats.KillStreak ?? 0}";
 
+            // Build the output message, now including damage
             string message =
                 $"<color={ColorSettings.Stats_TitleColor.Value}>Displaying stats for {targetName}</color>\n" +
+                $"Damage: <color={ColorSettings.Stats_DamageColor.Value}>{damageDisplay}</color> | " +
                 $"Kills: <color={ColorSettings.Stats_KillsColor.Value}>{killsDisplay}</color> | " +
                 $"Deaths: <color={ColorSettings.Stats_DeathsColor.Value}>{deathsDisplay}</color> | " +
                 $"Assists: <color={ColorSettings.Stats_AssistsColor.Value}>{assistsDisplay}</color>\n" +
