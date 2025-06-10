@@ -3,24 +3,24 @@
 **CustomKill** is a fork of BestKillfeed specifically refactored to use LiteDB and for the Blood Wars server.
 Credits and copyright: 
 Credit for original author(s)
-- Deca (retired)
+- Deca (retired) (https://github.com/decaprime) [OG Killfeed author]
 - Sunrise (https://github.com/SunrisesvRising/BestKillfeed)
 - Morphine (Phlebotomist) (https://github.com/phlebotomist/PvPDetails)
 
 ## 🔧 Main Features
--Clan name + player name + max level in feed
--Kills / Deaths / Assists / MaxStreak system
--LiteDB persistent data storage
+- Clan name + player name + max level in feed
+  - Damage / Kills / Deaths / Assists / MaxStreak system
+  - LiteDB persistent data storage
 
-### ✅ Enhanced Killfeed in Chat
+## ✅ Enhanced Killfeed in Chat
 - Displays **clan**, **player name**, and **max level** for each kill.
 - Automatically detects player max levels on **login**, **kill**, or when executing `.lb` or `.pi` commands.
 
 
-### 🛡️ Kill-Steal Protection
+## 🛡️ Kill-Steal Protection
 - If **Player A** downs **Player B**, but **Player C** finishes them, the kill is credited to **Player A**.
 
-### 🚫 Anti-Grief Level Difference System
+## 🚫 Anti-Grief Level Difference System
 - Configurable level-difference protection:
   - For level **91**: max difference = **10 levels**
   - For levels **below 91**: max difference = **15 levels**
@@ -28,7 +28,7 @@ Credit for original author(s)
 
 ---
 
-### 📊 Custom Commands
+## 📊 Custom Commands
 
 #### `.top` [category] – Leaderboard (top 5 players)
 - Displays an aesthetic **leaderboard** with:
@@ -39,8 +39,8 @@ Credit for original author(s)
  
 #### `.stats` - Stats
 - Displays users stats including:
-- Kills, Deaths, Assists, Max Killstreak
-- Future: Add damage tracking for damage
+  - Damage, Kills, Deaths, Assists, Max Killstreak
+  - Future: ~~damage tracking~~ (DONE) , assist tracking (Needs testing)
 
 #### `.pi` – Player Info
 - Displays detailed **player info**:
@@ -50,7 +50,7 @@ Credit for original author(s)
 
 ---
 
-### ⚙️ Easy Configuration
+## ⚙️ Easy Configuration
 - Edit the `CustomKill.cfg` file to customize:
   - Text colors
   - Level difference thresholds
@@ -58,7 +58,7 @@ Credit for original author(s)
 
 ---
 
-### 🎨 Color Settings (.top / .stats)
+## 🎨 Color Settings (.top / .stats)
 - Customizable color settings
   - Title (change appearance when --Top 5 players-- or --Username Stats-- is read from config)
   - Kills/Deaths/Assists/Maxstreak
@@ -66,7 +66,7 @@ Credit for original author(s)
 
 ---
 
-### ❗ Admin Flagging System
+## ❗ Admin Flagging System
 - Configurable system for adding admin only restrictions
   - Config file of CustomKill.cfg
   - Configrable to set each category as viewable by all or by admin
@@ -74,7 +74,7 @@ Credit for original author(s)
 
 ---
 
-### 💾 Persistent Data Storage
+## 💾 Persistent Data Storage
 -Uses **LiteDB** for efficient data storage, ensuring:
 Better overhead performance and reliability.
 Reduced load for server resources (i.e. no saving to json file)
