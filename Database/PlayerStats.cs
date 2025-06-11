@@ -1,23 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LiteDB;
 
 namespace CustomKill.Database
 {
     public class PlayerStats
     {
-        [BsonId] // Will mark name field as primary key
+        [BsonId] // Name is the primary key
         public string Name { get; set; }
-        public ulong SteamID { get; set; } // Optional, can be null if not available
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // Automatically set to current time when created
-        public int? Kills { get; set; }
-        public int? Deaths { get; set; }
-        public int? Assists { get; set; }
-        public int? MaxStreak { get; set; }
-        public int? KillStreak { get; set; } // Current kill streak, starts at 0
 
+        public ulong SteamID { get; set; }
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        // Initialize all nullable ints to 0 so they never stay null
+        public int? Kills { get; set; } = 0;
+        public int? Damage { get; set; } = 0;
+        public int? DamageTaken { get; set; } = 0;
+        public int? Deaths { get; set; } = 0;
+        public int? Assists { get; set; } = 0;
+        public int? MaxStreak { get; set; } = 0;
+        public int? KillStreak { get; set; } = 0;
     }
 }

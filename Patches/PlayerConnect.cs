@@ -35,11 +35,11 @@ namespace CustomKill.Patches
                 if (string.IsNullOrWhiteSpace(characterName)) return;
 
                 LevelService.Instance.UpdatePlayerLevel(userEntity);
-                Debug.Log($"[BestKillfeed] Player {characterName} connected. Level updated.");
+                Debug.Log($"[CustomKill] {characterName} connected. Level updated.");
             }
             catch (Exception ex)
             {
-                Debug.LogError($"[BestKillfeed] Error during OnUserConnected: {ex.Message}\n{ex.StackTrace}");
+                Debug.LogError($"[CustomKill] Error during OnUserConnected: {ex.Message}\n{ex.StackTrace}");
             }
         }
     }

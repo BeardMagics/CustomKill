@@ -15,8 +15,11 @@ namespace CustomKill.Database
 
                 var stats = collection.FindById(name);
                 if (stats == null ||
-                    (stats.Kills == null && stats.Deaths == null && stats.Assists == null &&
-                     stats.MaxStreak == null && stats.KillStreak == null))
+                    (stats.Kills == null &&
+                     stats.Deaths == null &&
+                     stats.Assists == null &&
+                     stats.MaxStreak == null &&
+                     stats.KillStreak == null))
                 {
                     stats = new PlayerStats
                     {
@@ -62,6 +65,33 @@ namespace CustomKill.Database
             }
         }
 
+        public static void RegisterDamage(string name, ulong steamID, int amount)
+        {
+            var collection = DatabaseWrapper.Instance.Collection;
+
+            // Find existing or create new with a proper SteamID
+            var stats = collection.FindById(name)
+                     ?? new PlayerStats { Name = name, SteamID = steamID };
+
+            // Coalesce null to 0, then add
+            stats.Damage = (stats.Damage ?? 0) + amount;
+
+            // Upsert will insert if new, or update if existing
+            collection.Upsert(stats);
+        }
+
+        public static void RegisterDamageTaken(string name, ulong steamID, int amount)
+        {
+            var collection = DatabaseWrapper.Instance.Collection;
+
+            var stats = collection.FindById(name)
+                     ?? new PlayerStats { Name = name, SteamID = steamID };
+
+            stats.DamageTaken = (stats.DamageTaken ?? 0) + amount;
+
+            collection.Upsert(stats);
+        }
+
         public static Dictionary<string, PlayerStats> GetAllStats()
         {
             var collection = DatabaseWrapper.Instance.Collection;
@@ -71,7 +101,9 @@ namespace CustomKill.Database
         public static PlayerStats GetStats(string name)
         {
             var collection = DatabaseWrapper.Instance.Collection;
-            return collection.FindById(name) ?? new PlayerStats { Name = name };
+            // Note: this returns a fresh PlayerStats if none existed, but does not persist it.
+            return collection.FindById(name)
+                   ?? new PlayerStats { Name = name };
         }
 
         public static void Init()

@@ -24,6 +24,7 @@ namespace CustomKill
         {
             Instance = this;
             Logger = Log;
+            //Add clan user tracking days for .top to recognize and tally clan kills / damage -> output to config file    
 
             // Register VCF commands
             CommandRegistry.RegisterAll(Assembly.GetExecutingAssembly());
