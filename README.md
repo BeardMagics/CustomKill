@@ -1,4 +1,4 @@
-# 🩸 CustomKill
+# 💀 CustomKill
 
 **CustomKill** is a fork of BestKillfeed specifically refactored to use LiteDB and for the Blood Wars server.
 Credits and copyright: 
@@ -12,19 +12,21 @@ Credit for original author(s)
   - Damage / Kills / Deaths / Assists / MaxStreak system
   - LiteDB persistent data storage
 
-## ✅ Enhanced Killfeed in Chat
+## ☑️ Enhanced Killfeed in Chat
 - Displays **clan**, **player name**, and **max level** for each kill.
 - Automatically detects player max levels on **login**, **kill**, or when executing `.lb` or `.pi` commands.
 
 
-## 🛡️ Kill-Steal Protection
+## 🛡️ Kill-Steal Protection 
 - If **Player A** downs **Player B**, but **Player C** finishes them, the kill is credited to **Player A**.
+  - Credit to Sunrise (left code source in place but updated namespace for attribution and file matching)
 
 ## 🚫 Anti-Grief Level Difference System
 - Configurable level-difference protection:
   - For level **91**: max difference = **10 levels**
   - For levels **below 91**: max difference = **15 levels**
 - Player levels are shown in **red** if they exceed the allowed difference.
+  - Credit again to Sunrise (thanks big guy)
 
 ---
 
@@ -52,7 +54,7 @@ Credit for original author(s)
   - Name, clan, level, clan members, and connection status
   - Name in **green** = connected  
   - Name in **red** = offline
-
+  - Credit yet again to Sunrise (left this system in place)
 ---
 
 ## ⚙️ Easy Configuration
