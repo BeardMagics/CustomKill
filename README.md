@@ -14,7 +14,7 @@ Credit for original author(s)
 
 ## ☑️ Enhanced Killfeed in Chat
 - Displays **clan**, **player name**, and **max level** for each kill.
-- Automatically detects player max levels on **login**, **kill**, or when executing `.lb` or `.pi` commands.
+- Automatically detects player max levels on **login**, **kill**, or when executing the `.pi` command
 
 
 ## 🛡️ Kill-Steal Protection 
