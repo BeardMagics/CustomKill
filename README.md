@@ -7,7 +7,7 @@ Credit for original author(s)
 - Sunrise (https://github.com/SunrisesvRising/BestKillfeed)
 - Morphine (Phlebotomist) (https://github.com/phlebotomist/PvPDetails)
 
-- New Authors:
+** New Authors: **
 - BeardMagics (CustomKill) (https://github.com/BeardMagics/CustomKill)
 
 ## 🔧 Main Features
