@@ -17,6 +17,7 @@ namespace CustomKill.Commands
             [Command("playerinfo", "pi", description: "Displays information about a player.", adminOnly: false)]
             public static void HandleCommand(ChatCommandContext ctx, string arg)
             {
+                ctx.Reply("Usage: .pi <playernamehere> - Display Clan name, members, and level of player.");
                 var levelService = LevelService.Instance;
                 var serverWorld = GetServerWorld();
                 if (serverWorld == null)

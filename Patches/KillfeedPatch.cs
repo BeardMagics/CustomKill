@@ -18,7 +18,6 @@ namespace CustomKill.Patches
     {
         public static void Postfix(DeathEventListenerSystem __instance)
         {
-            Plugin.Logger.LogInfo($"[KillfeedPatch] OnUpdate postfix running — scanning deaths…");
             var entityManager = Core.Server.EntityManager;
             var query = entityManager.CreateEntityQuery(ComponentType.ReadOnly<DeathEvent>());
             var entities = query.ToEntityArray(Allocator.Temp);
