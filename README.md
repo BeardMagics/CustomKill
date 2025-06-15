@@ -1,4 +1,4 @@
-# 🩸 CustomKill
+# 💀 CustomKill
 
 **CustomKill** is a fork of BestKillfeed specifically refactored to use LiteDB and for the Blood Wars server.
 Credits and copyright: 
@@ -7,12 +7,15 @@ Credit for original author(s)
 - Sunrise (https://github.com/SunrisesvRising/BestKillfeed)
 - Morphine (Phlebotomist) (https://github.com/phlebotomist/PvPDetails)
 
+- New Authors:
+- BeardMagics (CustomKill) (https://github.com/BeardMagics/CustomKill)
+
 ## 🔧 Main Features
-- [Clan name] + Player Name + Level in feed
+- [Clan name] + Player Name + (Level) in feed
   - Damage / Kills / Deaths / Assists / MaxStreak system
   - LiteDB persistent data storage
 
-## ✅ Enhanced Killfeed in Chat
+## ☑️ Enhanced Killfeed in Chat
 - Displays **clan**, **player name**, and **max level** for each kill.
 - Automatically detects player max levels on **login**, **kill**, or when executing `.lb` or `.pi` commands.
 
@@ -36,16 +39,27 @@ Credit for original author(s)
   - Pagination and ranking system
   - Categories including clan, damage, kills, deaths, assists, ms (maxstreak)
   - Future: ~~damage category~~ (DONE) , ~~top clan category~~ (DONE) [kills / deaths ]
-
-#### `.rs` - Reset Stats
-- Wipes database of player information, clan association, members, and stats
-  - Prompt system to avoid accidental deletion ( `.y` or `.n` )
-  - Future TODO: Export database to file | Discord command to commit stats (webhook with pagination logic)
- 
+  
 #### `.stats` - Stats
 - Displays users stats including:
   - Damage, Kills, Deaths, Assists, Max Killstreak
   - Future: ~~damage tracking~~ (DONE) , assist tracking (Needs testing)
+
+#### `.rs` - Reset Stats
+- Wipes database of player information, clan association, members, and stats
+  - Prompt system to avoid accidental deletion ( `.y` or `.n` )
+  - ~~Future TODO: Export database to file~~ (DONE) | Discord command to commit stats (webhook with pagination logic)
+ 
+#### `.exportstats` - Export to CSV
+- Fetches all database information and exports to CSV table file
+  - Added with 1.1 update
+  - Exports into clean CSV for easy tracking
+  - Displays Playername, Clan name, Clan tag, Damage, Kills, Deaths, Assists
+
+#### `.kd` and `.kda`
+- Displays current Kill/Death ratio
+  - Added kda for Kill/death/assist ratio
+  - User only, no display of other users KD/KDA
 
 #### `.pi` – Player Info
 - Displays detailed **player info**:
