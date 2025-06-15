@@ -80,6 +80,29 @@ namespace CustomKill.Database
             collection.Upsert(stats);
         }
 
+        public static Dictionary<string, List<string>> GetAllClans()
+        {
+            var db = DatabaseWrapper.Instance;
+
+            // Fetch all clan member records
+            var allMembers = db.ClanMembersCollection.FindAll().ToList();
+            var playerStats = db.Collection.FindAll().ToDictionary(p => p.SteamID, p => p.Name);
+
+            // Group by clan and resolve names
+            var clans = allMembers
+                .GroupBy(m => m.ClanName)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Select(m =>
+                        playerStats.TryGetValue(m.SteamID, out var name)
+                            ? name
+                            : $"Unknown({m.SteamID})"
+                    ).ToList()
+                );
+
+            return clans;
+        }
+
         public static void RegisterDamageTaken(string name, ulong steamID, int amount)
         {
             var collection = DatabaseWrapper.Instance.Collection;
