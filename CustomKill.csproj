@@ -7,7 +7,7 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<LangVersion>latest</LangVersion>
 		<RootNamespace>CustomKill</RootNamespace>
-		<Authors>BeardMagics, OA: Irozer</Authors>
+		<Authors>BeardMagics, Morphine, OA: Irozer</Authors>
 		<BepInExPluginGuid>com.beardmagics.customkill</BepInExPluginGuid>
 		<BaseOutputPath></BaseOutputPath>
 	</PropertyGroup>

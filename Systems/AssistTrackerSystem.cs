@@ -1,37 +1,53 @@
 using Unity.Entities;
-using ProjectM;
-using CustomKill.Utils;
+using ProjectM;                        // for StatChangeEvent
+using ProjectM.Gameplay.Systems;       // StatChangeReason
+using CustomKill.Combat;               // StatChangeHook
+using CustomKill.Utils;                // KillCache
 
 namespace CustomKill.Systems
 {
     public partial class AssistTrackerSystem : SystemBase
     {
-        public override void OnUpdate()
+        public override void OnCreate()
         {
-            var entityManager = EntityManager;
+            base.OnCreate();
+            StatChangeHook.OnStatChanged += HandleStatChanged;
+        }
 
-            var damageQuery = GetEntityQuery(ComponentType.ReadOnly<DamageTakenEvent>());
-            var damageEntities = damageQuery.ToEntityArray(Unity.Collections.Allocator.TempJob);
-            var damageEvents = damageQuery.ToComponentDataArray<DamageTakenEvent>(Unity.Collections.Allocator.TempJob);
+        public override void OnDestroy()
+        {
+            StatChangeHook.OnStatChanged -= HandleStatChanged;
+            base.OnDestroy();
+        }
 
-            for (int i = 0; i < damageEntities.Length; i++)
-            {
-                var damageEvent = damageEvents[i];
-                var attacker = damageEvent.Source;
-                var victim = damageEvent.Entity;
+        // Remove per-frame polling updates
+        public override void OnUpdate() { }
 
-                if (attacker == Entity.Null || victim == Entity.Null || attacker == victim)
-                    continue;
+        private void HandleStatChanged(StatChangeEvent ev)
+        {
+            // Re-checks filters to ensure processing only relevant events and stat changes
+            if (ev.Reason != StatChangeReason.DealDamageSystem_0 || ev.Change >= 0)
+                return;
 
-                if (entityManager.HasComponent<PlayerCharacter>(attacker) &&
-                    entityManager.HasComponent<PlayerCharacter>(victim))
-                {
-                    KillCache.AddAssist(victim, attacker);
-                }
-            }
+            var em = EntityManager;
 
-            damageEntities.Dispose();
-            damageEvents.Dispose();
+            if (!em.HasComponent<EntityOwner>(ev.Source))
+                return;
+
+            var attackerEnt = em.GetComponentData<EntityOwner>(ev.Source).Owner;
+            var victimEnt = ev.Entity;
+
+            if (attackerEnt == Entity.Null
+             || victimEnt == Entity.Null
+             || attackerEnt == victimEnt)
+                return;
+
+            if (!em.HasComponent<PlayerCharacter>(attackerEnt)
+             || !em.HasComponent<PlayerCharacter>(victimEnt))
+                return;
+
+            // Assit logic from KillCache - Hopefully it triggers correctly
+            KillCache.AddAssist(victimEnt, attackerEnt);
         }
     }
 }

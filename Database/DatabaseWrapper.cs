@@ -10,7 +10,7 @@ namespace CustomKill.Database
     /// </summary>
     public class ClanMemberRecord
     {
-        // Composite Id: "{SteamID}:{ClanName}" to ensure uniqueness per membership
+        // Composite Id: "{SteamID}:{ClanName}" to ensure unique identifer per membership
         public string Id { get; set; }
         public ulong SteamID { get; set; }
         public string ClanName { get; set; }

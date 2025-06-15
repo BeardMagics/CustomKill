@@ -72,7 +72,7 @@ namespace CustomKill.Commands
                         return;
                     }
 
-                    // Build the message
+                    // String message for Top Clans by X category
                     var sbClan = new StringBuilder();
                     sbClan.AppendLine(metric == "damage"
                         ? $"<color={ColorSettings.Top_ClanTitleColor.Value}>Top Clans by</color> <color={ColorSettings.Top_ClanDamageColor.Value}Damage 🏆</color>"
