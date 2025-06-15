@@ -35,7 +35,12 @@ Credit for original author(s)
   - Kills, deaths, max killstreaks
   - Pagination and ranking system
   - Categories including clan, damage, kills, deaths, assists, ms (maxstreak)
-  - Future: ~~damage category~~ (DONE) , ~~top clan category~~ (DONE) [kills / deaths ] 
+  - Future: ~~damage category~~ (DONE) , ~~top clan category~~ (DONE) [kills / deaths ]
+
+#### `.rs` - Reset Stats
+- Wipes database of player information, clan association, members, and stats
+  - Prompt system to avoid accidental deletion ( `.y` or `.n` )
+  - Future TODO: Export database to file | Discord command to commit stats (webhook with pagination logic)
  
 #### `.stats` - Stats
 - Displays users stats including:
