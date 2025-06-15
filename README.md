@@ -8,7 +8,7 @@ Credit for original author(s)
 - Morphine (Phlebotomist) (https://github.com/phlebotomist/PvPDetails)
 
 ## 🔧 Main Features
-- Clan name + player name + max level in feed
+- [Clan name] + Player Name + Level in feed
   - Damage / Kills / Deaths / Assists / MaxStreak system
   - LiteDB persistent data storage
 
@@ -34,8 +34,8 @@ Credit for original author(s)
 - Displays an aesthetic **leaderboard** with:
   - Kills, deaths, max killstreaks
   - Pagination and ranking system
-  - Categories including kills, deaths, assists, ms (maxstreak)
-  - Future: damage category, top clan category [kills / deaths / assists] 
+  - Categories including clan, damage, kills, deaths, assists, ms (maxstreak)
+  - Future: ~~damage category~~ (DONE) , ~~top clan category~~ (DONE) [kills / deaths ] 
  
 #### `.stats` - Stats
 - Displays users stats including:
