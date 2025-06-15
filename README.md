@@ -48,7 +48,7 @@ New Authors:
 #### `.rs` - Reset Stats
 - Wipes database of player information, clan association, members, and stats
   - Prompt system to avoid accidental deletion ( `.y` or `.n` )
-  - ~~Future TODO: Export database to file~~ (DONE) | Discord command to commit stats (webhook with pagination logic)
+  - Future TODO: ~~Export database to file~~ (DONE) | Discord command to commit stats (webhook with pagination logic)
  
 #### `.exportstats` - Export to CSV
 - Fetches all database information and exports to CSV table file
