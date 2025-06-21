@@ -1,10 +1,11 @@
-﻿using CustomKill.Database;
+﻿using CustomKill.Config;
+using CustomKill.Database;
+using CustomKill.Utils;
 using ProjectM;
 using ProjectM.Network;
 using System.Linq;
 using Unity.Entities;
 using VampireCommandFramework;
-using CustomKill.Config;
 
 namespace CustomKill.Commands
 {
@@ -60,6 +61,12 @@ namespace CustomKill.Commands
                 $"Max Streak: <color={ColorSettings.Stats_MaxStreakColor.Value}>{maxStreakDisplay}</color>";
 
             ctx.Reply(message);
+        }
+        
+        [Command("ptd", description: "Post top player and clan stats to Discord", adminOnly: true)]
+        public static void PostStatsToDiscord(ChatCommandContext ctx)
+        {
+            DiscordBroadcaster.PostTopStatsToDiscord(ctx);
         }
     }
 }
