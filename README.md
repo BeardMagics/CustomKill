@@ -89,8 +89,8 @@ Credit for original author(s)
 
 ## 💾 Persistent Data Storage
 -Uses **LiteDB** for efficient data storage, ensuring:
-Better overhead performance and reliability.
-Reduced load for server resources (i.e. no saving to json file)
+  - Better overhead performance and reliability.
+  - Reduced load for server resources (i.e. no saving to json file)
 
 ---
 
