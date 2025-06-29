@@ -119,6 +119,18 @@ namespace CustomKill.Patches
                     });
 
                     discordMessage += $" -- Assisters: {string.Join(", ", details)}";
+                 
+                    //Add assist details to in-game chat but remove discord formatting
+                    var detailsIngame = assisters.Select(e =>
+                    {
+                        var userComp = entityManager.GetComponentData<User>(
+                            entityManager.GetComponentData<PlayerCharacter>(e).UserEntity);
+                        var name = userComp.CharacterName.ToString();
+                        var level = LevelService.Instance.GetMaxLevel(name);
+                        return $"{name} ({level})";
+                    });
+
+                    msg += $" [Assist(s): {string.Join(", ", detailsIngame)}]";
 
                     // register each assist
                     foreach (var assister in assisters)
