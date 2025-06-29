@@ -31,7 +31,7 @@ namespace CustomKill.Commands
             {
                 ctx.Reply(isSelf
                     ? "<color=#aaaaaa>You have no PvP stats to display.</color>"
-                    : $"<color=#aaaaaa>No stats found for player \"{ColorSettings.Stats_PlayerNameColor} {targetName}\".</color>");
+                    : $"<color=#aaaaaa>No stats found for player <color={ColorSettings.Stats_PlayerNameColor.Value}>{targetName}</color>.</color>");
                 return;
             }
 

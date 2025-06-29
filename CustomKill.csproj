@@ -232,9 +232,6 @@
     <Reference Include="StableNameDotNet" HintPath="C:\Program Files (x86)\Steam\steamapps\common\VRisingDedicatedServer\BepInEx\core\StableNameDotNet.dll" />
     <Reference Include="WasmDisassembler" HintPath="C:\Program Files (x86)\Steam\steamapps\common\VRisingDedicatedServer\BepInEx\core\WasmDisassembler.dll" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Systems\" />
-  </ItemGroup>
 
   <PropertyGroup>
     <NoWarn>NU1605</NoWarn>

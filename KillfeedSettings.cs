@@ -17,6 +17,7 @@ namespace CustomKill
 
         // Discord webhook
         public static ConfigEntry<string> WebhookURL;
+        public static ConfigEntry<string> StatsWebhookURL;
 
         // Color settings
         public static ConfigEntry<string> KillerNameColor;
@@ -41,6 +42,7 @@ namespace CustomKill
 
             // Discord
             WebhookURL = config.Bind("Discord", "WebhookURL", "", "Discord Webhook URL for broadcasting kill messages.");
+            StatsWebhookURL = config.Bind("Discord", "StatsWebhookURL", "", "Discord Webhook URL for broadcasting player stats.");
 
             // Admin-only restrictions for .top command
             RestrictDamageToAdmin = config.Bind("Top Command Access", "RestrictDamageToAdmin", false, "Restrict access to the 'damage' leaderboard to admins only.");

@@ -4,12 +4,12 @@ using CustomKill.Utils;
 using HarmonyLib;
 using ProjectM;
 using ProjectM.Network;
-using ProjectM.StunDebug;
 using System.Linq;
 using Unity.Collections;
 using Unity.Entities;
-using UnityEngine;
 using CustomKill.Database;
+using CustomKill.Combat;
+using CustomKill.Config;
 
 namespace CustomKill.Patches
 {
@@ -30,58 +30,49 @@ namespace CustomKill.Patches
                 var deathEvent = entityManager.GetComponentData<DeathEvent>(entity);
                 var victim = deathEvent.Died;
 
-                // 1) grab all the cached hit/assist data *before* clearing
+                // Always prefer the locked downer
                 var downer = KillCache.GetDowner(victim);
-                var assisters = KillCache.GetAssistants(victim);
-
-                // 2) decide who is the killer
                 var killer = downer != Entity.Null ? downer : deathEvent.Killer;
 
-                // only clear *after* we've captured downer + assisters
+                // Clear downer lock after use
                 KillCache.Clear(victim);
 
-                // skip if either party isn't a player
                 if (!entityManager.HasComponent<PlayerCharacter>(victim) ||
                     !entityManager.HasComponent<PlayerCharacter>(killer))
                     continue;
 
-                var victimUser = entityManager.GetComponentData<PlayerCharacter>(victim).UserEntity;
-                var killerUser = entityManager.GetComponentData<PlayerCharacter>(killer).UserEntity;
+                var victimUserEntity = entityManager.GetComponentData<PlayerCharacter>(victim).UserEntity;
+                var killerUserEntity = entityManager.GetComponentData<PlayerCharacter>(killer).UserEntity;
 
-                if (!entityManager.HasComponent<User>(victimUser) ||
-                    !entityManager.HasComponent<User>(killerUser))
+                if (!entityManager.HasComponent<User>(victimUserEntity) ||
+                    !entityManager.HasComponent<User>(killerUserEntity))
                     continue;
 
-                var victimData = entityManager.GetComponentData<User>(victimUser);
-                var killerData = entityManager.GetComponentData<User>(killerUser);
+                var victimUser = entityManager.GetComponentData<User>(victimUserEntity);
+                var killerUser = entityManager.GetComponentData<User>(killerUserEntity);
 
-                var victimName = victimData.CharacterName.ToString();
-                var killerName = killerData.CharacterName.ToString();
+                var victimName = victimUser.CharacterName.ToString();
+                var killerName = killerUser.CharacterName.ToString();
 
                 if (string.IsNullOrWhiteSpace(victimName) ||
                     string.IsNullOrWhiteSpace(killerName) ||
                     victimName == killerName)
                     continue;
 
-                // Update levels
-                LevelService.Instance.UpdatePlayerLevel(killerUser);
-                LevelService.Instance.UpdatePlayerLevel(victimUser);
+                // Update levels for both
+                LevelService.Instance.UpdatePlayerLevel(killerUserEntity);
+                LevelService.Instance.UpdatePlayerLevel(victimUserEntity);
 
-                // Register kill & death
-                PvPStatsService.RegisterPvPStats(
-                    killerName, killerData.PlatformId,
-                    isKill: true, isDeath: false, isAssist: false);
-                PvPStatsService.RegisterPvPStats(
-                    victimName, victimData.PlatformId,
-                    isKill: false, isDeath: true, isAssist: false);
+                // Update stats for kill & death
+                PvPStatsService.RegisterPvPStats(killerName, killerUser.PlatformId, isKill: true, isDeath: false, isAssist: false);
+                PvPStatsService.RegisterPvPStats(victimName, victimUser.PlatformId, isKill: false, isDeath: true, isAssist: false);
 
                 var killerLevel = LevelService.Instance.GetMaxLevel(killerName);
                 var victimLevel = LevelService.Instance.GetMaxLevel(victimName);
 
-                var killerClan = TruncateClan(GetClanName(entityManager, killerData));
-                var victimClan = TruncateClan(GetClanName(entityManager, victimData));
+                var killerClan = TruncateClan(GetClanName(entityManager, killerUser));
+                var victimClan = TruncateClan(GetClanName(entityManager, victimUser));
 
-                // Determine kill validity & colors
                 var killAllowed = IsKillAllowed(killerLevel, victimLevel);
                 var levelColor = killAllowed
                     ? KillfeedSettings.AllowedLevelColor.Value
@@ -99,52 +90,35 @@ namespace CustomKill.Patches
                     .Replace("{VictimNameColor}", KillfeedSettings.VictimNameColor.Value)
                     .Replace("{ClanTagColor}", KillfeedSettings.ClanTagColor.Value);
 
-                FixedString512Bytes chatMsg = msg;
-                ServerChatUtils.SendSystemMessageToAllClients(entityManager, ref chatMsg);
+                // Lookup assist data *before* sending final message
+                var victimSteamId = victimUser.PlatformId;
+                var killerSteamId = killerUser.PlatformId;
 
-                // Build Discord message
-                string discordMessage = $"⚔️ [{killerClan}] **{killerName}** ({killerLevel}) " +
-                                        $"killed **{victimName}** ({victimLevel})";
+                var assisters = PlayerHitStore.GetRecentAttackersWithLvl(victimSteamId)
+                    .Where(x => x.Key != killerSteamId)
+                    .ToList();
 
-                // 3) process any assists we captured earlier
-                if (assisters != null && assisters.Count > 0)
+                string discordMessage = $"⚔️ [{killerClan}] **{killerName}** ({killerLevel}) killed **{victimName}** ({victimLevel})";
+
+                if (assisters.Count > 0)
                 {
-                    var details = assisters.Select(e =>
-                    {
-                        var userComp = entityManager.GetComponentData<User>(
-                            entityManager.GetComponentData<PlayerCharacter>(e).UserEntity);
-                        var name = userComp.CharacterName.ToString();
-                        var level = LevelService.Instance.GetMaxLevel(name);
-                        return $"*{name}* ({level})";
-                    });
+                    var details = assisters.Select(e => $"*{e.Value.Name}* ({e.Value.Level})");
+                    discordMessage += $"\n-- Assisters: {string.Join(", ", details)}";
 
-                    discordMessage += $" -- Assisters: {string.Join(", ", details)}";
-                 
-                    //Add assist details to in-game chat but remove discord formatting
-                    var detailsIngame = assisters.Select(e =>
-                    {
-                        var userComp = entityManager.GetComponentData<User>(
-                            entityManager.GetComponentData<PlayerCharacter>(e).UserEntity);
-                        var name = userComp.CharacterName.ToString();
-                        var level = LevelService.Instance.GetMaxLevel(name);
-                        return $"{name} ({level})";
-                    });
+                    var detailsInGame = assisters.Select(e => $"<color={ColorSettings.Stats_AssistsColor}>{e.Value.Name}</color> ({e.Value.Level})");
+                    msg += $"\n<color=#FFFFFF>[Assist(s): {string.Join(", ", detailsInGame)}]</color>";
 
-                    msg += $" [Assist(s): {string.Join(", ", detailsIngame)}]";
-
-                    // register each assist
                     foreach (var assister in assisters)
                     {
-                        var userComp = entityManager.GetComponentData<User>(
-                            entityManager.GetComponentData<PlayerCharacter>(assister).UserEntity);
-                        var name = userComp.CharacterName.ToString();
-                        var steamId = userComp.PlatformId;
-
                         PvPStatsService.RegisterPvPStats(
-                            name, steamId,
+                            assister.Value.Name, assister.Key,
                             isKill: false, isDeath: false, isAssist: true);
                     }
                 }
+
+                // send fully built chat message
+                FixedString512Bytes chatMsg = msg;
+                ServerChatUtils.SendSystemMessageToAllClients(entityManager, ref chatMsg);
 
                 DiscordBroadcaster.SendKillMessage(discordMessage);
             }
@@ -155,27 +129,24 @@ namespace CustomKill.Patches
         private static string GetClanName(EntityManager em, User user)
         {
             var clanEntity = user.ClanEntity._Entity;
-            if (clanEntity != Entity.Null && em.HasComponent<ClanTeam>(clanEntity))
-            {
-                return em.GetComponentData<ClanTeam>(clanEntity).Name.ToString();
-            }
-            return "-";
+            return clanEntity != Entity.Null && em.HasComponent<ClanTeam>(clanEntity)
+                ? em.GetComponentData<ClanTeam>(clanEntity).Name.ToString()
+                : "-";
         }
 
         private static string TruncateClan(string name)
         {
-            if (string.IsNullOrEmpty(name)) return "---";
-            return name.Length <= 3
-                ? name.ToUpper()
-                : name.Substring(0, 3).ToUpper();
+            return string.IsNullOrEmpty(name)
+                ? "---"
+                : (name.Length <= 3 ? name.ToUpper() : name.Substring(0, 3).ToUpper());
         }
 
         private static bool IsKillAllowed(int killerLevel, int victimLevel)
         {
             int diff = killerLevel - victimLevel;
-            if (killerLevel >= 91)
-                return diff <= KillfeedSettings.MaxLevelGapHigh.Value;
-            return diff <= KillfeedSettings.MaxLevelGapNormal.Value;
+            return killerLevel >= 91
+                ? diff <= KillfeedSettings.MaxLevelGapHigh.Value
+                : diff <= KillfeedSettings.MaxLevelGapNormal.Value;
         }
     }
 }

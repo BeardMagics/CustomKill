@@ -6,7 +6,7 @@ using System;
 using System.Runtime.InteropServices;
 using Unity.Entities;
 
-namespace CustomKill.Combat;  // file-scoped namespace
+namespace CustomKill.Combat;
 
 #pragma warning disable CS8500
 public static class ECSExtensions
