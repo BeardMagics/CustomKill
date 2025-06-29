@@ -1,6 +1,7 @@
 # 💀 CustomKill
 
-**CustomKill** is a fork of BestKillfeed specifically refactored to use LiteDB and for the Blood Wars server.
+**CustomKill** A custom V-Rising killfeed plugin utilizing existing foundations, developed for servers with more customization options for Admins, and easier configuration.
+Originally forked from BestKillfeed + PvP Details to use existing framework/foundations.
 Credits and copyright: 
 Credit for original author(s)
 - Deca (retired) (https://github.com/decaprime) [OG Killfeed author]
@@ -68,6 +69,7 @@ Credit for original author(s)
   - Text colors
   - Level difference thresholds
   - Discord webhook URL for kill notifications
+    - Displays webhook name as "app" (i.e. if webhook is named FozzyBear, when a kill takes place the webhook will show "FozzyBear 'APP'") for high customization
 
 ---
 
@@ -82,7 +84,7 @@ Credit for original author(s)
 ## ❗ Admin Flagging System
 - Configurable system for adding admin only restrictions
   - Config file of CustomKill.cfg
-  - Configrable to set each category as viewable by all or by admin
+  - Configurable to set each category as viewable by all or by admin
   - Config flag field: `RestrictKillsToAdmin` = `boolean` (true / false)
 
 ---
