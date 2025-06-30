@@ -86,6 +86,7 @@ Credit for original author(s)
   - Config file of CustomKill.cfg
   - Configurable to set each category as viewable by all or by admin
   - Config flag field: `RestrictKillsToAdmin` = `boolean` (true / false)
+  - Level Service Mode to track players by highest gearscore or GS at time of kill ( 1 or 2 )
 
 ---
 
