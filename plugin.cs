@@ -36,7 +36,7 @@ namespace CustomKill
             KillfeedSettings.Init(BepInEx.Paths.ConfigPath);
 
             Logger.LogInfo("CustomKill config initialized.");
-            Logger.LogInfo("CustomKill v1.1.3 is loading...");
+            Logger.LogInfo("CustomKill v1.1.5 is loading...");
 
             _harmony = new Harmony("com.beardmagics.customkill");
             _harmony.PatchAll();

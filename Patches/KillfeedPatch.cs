@@ -5,6 +5,7 @@ using HarmonyLib;
 using ProjectM;
 using ProjectM.Network;
 using System.Linq;
+using UnityEngine;
 using Unity.Collections;
 using Unity.Entities;
 using CustomKill.Database;
@@ -59,7 +60,7 @@ namespace CustomKill.Patches
                     victimName == killerName)
                     continue;
 
-                // Update levels for both
+                // Update levels for both (for max-level tracking)
                 LevelService.Instance.UpdatePlayerLevel(killerUserEntity);
                 LevelService.Instance.UpdatePlayerLevel(victimUserEntity);
 
@@ -67,8 +68,24 @@ namespace CustomKill.Patches
                 PvPStatsService.RegisterPvPStats(killerName, killerUser.PlatformId, isKill: true, isDeath: false, isAssist: false);
                 PvPStatsService.RegisterPvPStats(victimName, victimUser.PlatformId, isKill: false, isDeath: true, isAssist: false);
 
-                var killerLevel = LevelService.Instance.GetMaxLevel(killerName);
-                var victimLevel = LevelService.Instance.GetMaxLevel(victimName);
+                // ------------------
+                // Level with toggle: LevelTrackingMode
+                // ------------------
+                int killerLevel;
+                int victimLevel;
+
+                if (KillfeedSettings.LevelTrackingMode.Value == 1)
+                {
+                    // Highest ever equipped
+                    killerLevel = LevelService.Instance.GetMaxLevel(killerName);
+                    victimLevel = LevelService.Instance.GetMaxLevel(victimName);
+                }
+                else
+                {
+                    // Live ECS snapshot
+                    killerLevel = GetLiveGearLevel(entityManager, killerUserEntity);
+                    victimLevel = GetLiveGearLevel(entityManager, victimUserEntity);
+                }
 
                 var killerClan = TruncateClan(GetClanName(entityManager, killerUser));
                 var victimClan = TruncateClan(GetClanName(entityManager, victimUser));
@@ -116,7 +133,7 @@ namespace CustomKill.Patches
                     }
                 }
 
-                // send fully built chat message
+                // Send fully built chat message
                 FixedString512Bytes chatMsg = msg;
                 ServerChatUtils.SendSystemMessageToAllClients(entityManager, ref chatMsg);
 
@@ -147,6 +164,19 @@ namespace CustomKill.Patches
             return killerLevel >= 91
                 ? diff <= KillfeedSettings.MaxLevelGapHigh.Value
                 : diff <= KillfeedSettings.MaxLevelGapNormal.Value;
+        }
+
+        private static int GetLiveGearLevel(EntityManager entityManager, Entity userEntity)
+        {
+            if (!entityManager.HasComponent<User>(userEntity)) return 0;
+
+            var user = entityManager.GetComponentData<User>(userEntity);
+            var charEntity = user.LocalCharacter._Entity;
+
+            if (!entityManager.HasComponent<Equipment>(charEntity)) return 0;
+
+            var equipment = entityManager.GetComponentData<Equipment>(charEntity);
+            return Mathf.RoundToInt(equipment.ArmorLevel + equipment.SpellLevel + equipment.WeaponLevel);
         }
     }
 }

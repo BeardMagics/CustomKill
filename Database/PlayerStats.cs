@@ -20,5 +20,7 @@ namespace CustomKill.Database
         public int? Assists { get; set; } = 0;
         public int? MaxStreak { get; set; } = 0;
         public int? KillStreak { get; set; } = 0;
+
+        public int? MaxGearScore { get; set; } = 0;
     }
 }

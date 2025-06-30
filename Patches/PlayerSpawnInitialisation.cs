@@ -1,10 +1,11 @@
-﻿using HarmonyLib;
-using ProjectM;
-using Unity.Collections;
-using ProjectM.Network;
+﻿using CustomKill.Database;
 using CustomKill.Services;
-using UnityEngine;
+using HarmonyLib;
+using ProjectM;
+using ProjectM.Network;
 using Stunlock.Core;
+using Unity.Collections;
+using UnityEngine;
 
 namespace CustomKill.Patches
 {
@@ -33,8 +34,7 @@ namespace CustomKill.Patches
 
                 if (!string.IsNullOrWhiteSpace(characterName))
                 {
-                    LevelService.Instance.InitPlayerLevel(characterName);
-                    Debug.Log($"[CustomKill] New player detected: {characterName}. Level initialized to 0.");
+                    Debug.Log($"[CustomKill] New player detected: {characterName}.");
                 }
             }
 

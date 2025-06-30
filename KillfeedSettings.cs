@@ -12,6 +12,9 @@ namespace CustomKill
         public static ConfigEntry<bool> RestrictAssistsToAdmin;
         public static ConfigEntry<bool> RestrictMaxStreakToAdmin;
 
+        // Killfeed Level Tracking mode
+        public static ConfigEntry<int> LevelTrackingMode;
+
         // Days a clan member must be in a clan to be counted in .top clan damage/kills statistics
         internal static ConfigEntry<int> ClanTrackingDays;
 
@@ -33,6 +36,16 @@ namespace CustomKill
         public static ConfigEntry<int> MaxLevelGapNormal;
         public static ConfigEntry<int> MaxLevelGapHigh;
 
+        public static void Init(ConfigFile config)
+        {
+            LevelTrackingMode = config.Bind(    // Insert level tracking type / select mode setting 1 - max GS - 2 Live ECS snapshot
+                "Killfeed",
+                "LevelTrackingMode",
+                1,
+                "1 = Highest equipped gearscore, 2 = Current equipped gearscore on kill"
+            );
+        }
+
         public static void Init(string configPath)
         {
             var config = new ConfigFile(Paths.ConfigPath + "\\CustomKill.cfg", true);
@@ -43,6 +56,10 @@ namespace CustomKill
             // Discord
             WebhookURL = config.Bind("Discord", "WebhookURL", "", "Discord Webhook URL for broadcasting kill messages.");
             StatsWebhookURL = config.Bind("Discord", "StatsWebhookURL", "", "Discord Webhook URL for broadcasting player stats.");
+
+            // Level Tracking Mode
+            LevelTrackingMode = config.Bind("Level Service Mode", "LevelTrackingMode", 1, 
+                "Level tracking mode: 1 = Track by max logged gearscore , 2 = Track using live gearscore data (Unity ECS Snapshot at time of kill)");
 
             // Admin-only restrictions for .top command
             RestrictDamageToAdmin = config.Bind("Top Command Access", "RestrictDamageToAdmin", false, "Restrict access to the 'damage' leaderboard to admins only.");
