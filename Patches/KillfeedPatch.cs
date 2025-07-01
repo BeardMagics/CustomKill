@@ -122,7 +122,7 @@ namespace CustomKill.Patches
                     var details = assisters.Select(e => $"*{e.Value.Name}* ({e.Value.Level})");
                     discordMessage += $"\n-- Assisters: {string.Join(", ", details)}";
 
-                    var detailsInGame = assisters.Select(e => $"<color={ColorSettings.Stats_AssistsColor}>{e.Value.Name}</color> ({e.Value.Level})");
+                    var detailsInGame = assisters.Select(e => $"<color={ColorSettings.Stats_AssistsColor.Value}>{e.Value.Name}</color> ({e.Value.Level})");
                     msg += $"\n<color=#FFFFFF>[Assist(s): {string.Join(", ", detailsInGame)}]</color>";
 
                     foreach (var assister in assisters)
