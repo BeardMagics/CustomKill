@@ -12,7 +12,7 @@ using VampireCommandFramework;
 
 namespace CustomKill
 {
-    [BepInPlugin("com.beardmagics.customkill", "CustomKill", "1.1.3")]
+    [BepInPlugin("com.beardmagics.customkill", "CustomKill", "1.1.51")]
     [BepInDependency("gg.deca.VampireCommandFramework", BepInDependency.DependencyFlags.HardDependency)]
     public class Plugin : BasePlugin
     {
@@ -36,7 +36,7 @@ namespace CustomKill
             KillfeedSettings.Init(BepInEx.Paths.ConfigPath);
 
             Logger.LogInfo("CustomKill config initialized.");
-            Logger.LogInfo("CustomKill v1.1.5 is loading...");
+            Logger.LogInfo("CustomKill v1.1.51 is loading...");
 
             _harmony = new Harmony("com.beardmagics.customkill");
             _harmony.PatchAll();
