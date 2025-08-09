@@ -1,3 +1,4 @@
+using System;
 using CustomKill;
 using CustomKill.Services;
 using CustomKill.Utils;
@@ -17,11 +18,18 @@ namespace CustomKill.Patches
     [HarmonyPatch(typeof(DeathEventListenerSystem), nameof(DeathEventListenerSystem.OnUpdate))]
     public static class KillfeedPatch
     {
+        private static EntityQuery _deathQuery;
+
+        static KillfeedPatch()
+        {
+            var entityManager = Core.Server.EntityManager;
+            _deathQuery = entityManager.CreateEntityQuery(ComponentType.ReadOnly<DeathEvent>());
+        }
+
         public static void Postfix(DeathEventListenerSystem __instance)
         {
             var entityManager = Core.Server.EntityManager;
-            var query = entityManager.CreateEntityQuery(ComponentType.ReadOnly<DeathEvent>());
-            var entities = query.ToEntityArray(Allocator.Temp);
+            var entities = _deathQuery.ToEntityArray(Allocator.Temp);
 
             foreach (var entity in entities)
             {
@@ -31,11 +39,9 @@ namespace CustomKill.Patches
                 var deathEvent = entityManager.GetComponentData<DeathEvent>(entity);
                 var victim = deathEvent.Died;
 
-                // Always prefer the locked downer
                 var downer = KillCache.GetDowner(victim);
                 var killer = downer != Entity.Null ? downer : deathEvent.Killer;
 
-                // Clear downer lock after use
                 KillCache.Clear(victim);
 
                 if (!entityManager.HasComponent<PlayerCharacter>(victim) ||
@@ -51,6 +57,9 @@ namespace CustomKill.Patches
 
                 var victimUser = entityManager.GetComponentData<User>(victimUserEntity);
                 var killerUser = entityManager.GetComponentData<User>(killerUserEntity);
+                RegisterClanIfMissing(killerUserEntity, entityManager);
+                RegisterClanIfMissing(victimUserEntity, entityManager);
+
 
                 var victimName = victimUser.CharacterName.ToString();
                 var killerName = killerUser.CharacterName.ToString();
@@ -60,29 +69,22 @@ namespace CustomKill.Patches
                     victimName == killerName)
                     continue;
 
-                // Update levels for both (for max-level tracking)
                 LevelService.Instance.UpdatePlayerLevel(killerUserEntity);
                 LevelService.Instance.UpdatePlayerLevel(victimUserEntity);
 
-                // Update stats for kill & death
-                PvPStatsService.RegisterPvPStats(killerName, killerUser.PlatformId, isKill: true, isDeath: false, isAssist: false);
-                PvPStatsService.RegisterPvPStats(victimName, victimUser.PlatformId, isKill: false, isDeath: true, isAssist: false);
+                PvPStatsService.BufferPvPStat(killerName, killerUser.PlatformId, true, false, false);
+                PvPStatsService.BufferPvPStat(victimName, victimUser.PlatformId, false, true, false);
 
-                // ------------------
-                // Level with toggle: LevelTrackingMode
-                // ------------------
                 int killerLevel;
                 int victimLevel;
 
                 if (KillfeedSettings.LevelTrackingMode.Value == 1)
                 {
-                    // Highest ever equipped
                     killerLevel = LevelService.Instance.GetMaxLevel(killerName);
                     victimLevel = LevelService.Instance.GetMaxLevel(victimName);
                 }
                 else
                 {
-                    // Live ECS snapshot
                     killerLevel = GetLiveGearLevel(entityManager, killerUserEntity);
                     victimLevel = GetLiveGearLevel(entityManager, victimUserEntity);
                 }
@@ -107,7 +109,6 @@ namespace CustomKill.Patches
                     .Replace("{VictimNameColor}", KillfeedSettings.VictimNameColor.Value)
                     .Replace("{ClanTagColor}", KillfeedSettings.ClanTagColor.Value);
 
-                // Lookup assist data *before* sending final message
                 var victimSteamId = victimUser.PlatformId;
                 var killerSteamId = killerUser.PlatformId;
 
@@ -127,13 +128,21 @@ namespace CustomKill.Patches
 
                     foreach (var assister in assisters)
                     {
-                        PvPStatsService.RegisterPvPStats(
+                        PvPStatsService.BufferPvPStat(
                             assister.Value.Name, assister.Key,
-                            isKill: false, isDeath: false, isAssist: true);
+                            false, false, true);
+
+                        var assisterEntity = Helpers.GetCharacterFromSteamID(assister.Key);
+                        if (assisterEntity != Entity.Null &&
+                            entityManager.HasComponent<PlayerCharacter>(assisterEntity))
+                        {
+                            var assisterUserEntity = entityManager.GetComponentData<PlayerCharacter>(assisterEntity).UserEntity;
+                            RegisterClanIfMissing(assisterUserEntity, entityManager);
+                        }
                     }
+
                 }
 
-                // Send fully built chat message
                 FixedString512Bytes chatMsg = msg;
                 ServerChatUtils.SendSystemMessageToAllClients(entityManager, ref chatMsg);
 
@@ -177,6 +186,35 @@ namespace CustomKill.Patches
 
             var equipment = entityManager.GetComponentData<Equipment>(charEntity);
             return Mathf.RoundToInt(equipment.ArmorLevel + equipment.SpellLevel + equipment.WeaponLevel);
+        }
+        private static void RegisterClanIfMissing(Entity userEntity, EntityManager entityManager)
+        {
+            if (!entityManager.HasComponent<User>(userEntity)) return;
+
+            var user = entityManager.GetComponentData<User>(userEntity);
+            var steamID = user.PlatformId;
+            var name = user.CharacterName.ToString();
+
+            Entity clanEntity = user.ClanEntity._Entity;
+            if (clanEntity == Entity.Null || !entityManager.HasComponent<ClanTeam>(clanEntity)) return;
+
+            var clanTeam = entityManager.GetComponentData<ClanTeam>(clanEntity);
+            var clanName = clanTeam.Name.ToString();
+            var recordId = $"{steamID}:{clanName}";
+
+            var existing = DatabaseWrapper.Instance.ClanMembersCollection.FindById(recordId);
+            if (existing != null) return;
+
+            var record = new ClanMemberRecord
+            {
+                Id = recordId,
+                SteamID = steamID,
+                ClanName = clanName,
+                JoinedAt = DateTime.UtcNow
+            };
+
+            DatabaseWrapper.Instance.ClanMembersCollection.Upsert(record);
+            Plugin.Logger.LogInfo($"[ClanFallback] Registered {name} to clan '{clanName}' during PvP.");
         }
     }
 }

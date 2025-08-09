@@ -12,7 +12,7 @@ namespace CustomKill.Combat
         public int AttackerLevel;
         public string VictimName;
         public int VictimLevel;
-        public long Timestamp; // Now uses DateTime.UtcNow.Ticks
+        public long Timestamp;
         public int DmgSourceGUID;
         public int DmgAmount;
     }
@@ -26,9 +26,9 @@ namespace CustomKill.Combat
     public static class PlayerHitStore
     {
         private const double PVP_WINDOW_SECONDS = 30.0;
+        private const int MAX_HITS = 500;
 
-        private static readonly Dictionary<ulong, PlayerHitData> interactionsByPlayer =
-            new();
+        private static readonly Dictionary<ulong, PlayerHitData> interactionsByPlayer = new();
 
         public static IReadOnlyDictionary<ulong, PlayerHitData> InteractionsByPlayer => interactionsByPlayer;
 
@@ -59,7 +59,7 @@ namespace CustomKill.Combat
             AddDefense(victimSteamId, hit);
 
             if (interactionsByPlayer.TryGetValue(victimSteamId, out var victimHitData)
-                && victimHitData.Defenses.Count >= 500)
+                && victimHitData.Defenses.Count >= MAX_HITS)
             {
                 CleanupOldHitInteractionsByPlayer(victimSteamId);
             }
@@ -73,6 +73,13 @@ namespace CustomKill.Combat
                 interactionsByPlayer[playerSteamId] = hitData;
             }
             hitData.Attacks.Add(hit);
+
+            if (hitData.Attacks.Count >= MAX_HITS)
+            {
+                long nowTicks = DateTime.UtcNow.Ticks;
+                long windowTicks = TimeSpan.FromSeconds(PVP_WINDOW_SECONDS).Ticks;
+                hitData.Attacks.RemoveAll(h => (nowTicks - h.Timestamp) > windowTicks);
+            }
         }
 
         private static void AddDefense(ulong playerSteamId, HitInteraction hit)

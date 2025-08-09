@@ -1,10 +1,11 @@
 {
-    "name": "CustomKill",
-    "version_number": "1.1.2",
-    "website_url": "",
-    "description": "CustomKill is a fork of BestKillfeed specifically refactored to use LiteDB and for the Blood Wars server.",
-    "dependencies": [
-      "deca-VampireCommandFramework-0.10.3"
-      "BepInEx-1.733.2"
-    ]
+  "name": "CustomKill",
+  "version_number": "1.1.75",
+  "website_url": "https://github.com/BeardMagics/CustomKill",
+  "description": "A Custom V-Rising killfeed plugin utilizing existing foundations, easier configuration, and customization for server owners.",
+  "author": "BeardMagics",
+  "dependencies": [
+    "deca-VampireCommandFramework-0.10.4",
+    "BepInEx-BepInExPack_V_Rising-1.733.2"
+  ]
 }

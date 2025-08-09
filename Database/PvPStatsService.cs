@@ -1,25 +1,71 @@
 ﻿using BepInEx;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Threading;
 using System.Linq;
 
 namespace CustomKill.Database
 {
     public static class PvPStatsService
     {
-        public static void RegisterPvPStats(string name, ulong steamID, bool isKill, bool isDeath, bool isAssist)
-        {
-            try
-            {
-                var collection = DatabaseWrapper.Instance.Collection;
+        private static readonly Dictionary<string, PlayerStats> _pending = new();
+        private static readonly object _lock = new();
+        private static bool _running = false;
 
-                var stats = collection.FindById(name);
-                if (stats == null ||
-                    (stats.Kills == null &&
-                     stats.Deaths == null &&
-                     stats.Assists == null &&
-                     stats.MaxStreak == null &&
-                     stats.KillStreak == null))
+        public static void Init()
+        {
+            if (!_running)
+            {
+                _running = true;
+                Task.Run(() => FlushLoop());
+                Plugin.Logger.LogInfo("[PvPStatsService] Buffer initialized.");
+            }
+        }
+
+        public static Dictionary<string, PlayerStats> GetAllStats()
+        {
+            return DatabaseWrapper.Instance.Collection.FindAll().ToDictionary(ps => ps.Name, ps => ps);
+        }
+
+        public static Dictionary<string, List<string>> GetAllClans()
+        {
+            var db = DatabaseWrapper.Instance;
+            var allMembers = db.ClanMembersCollection.FindAll();
+
+            // Safely build SteamID -> Name map
+            var playerStats = new Dictionary<ulong, string>();
+            foreach (var p in db.Collection.FindAll())
+            {
+                if (!playerStats.ContainsKey(p.SteamID))
+                    playerStats.Add(p.SteamID, p.Name);
+            }
+
+            var clans = new Dictionary<string, List<string>>();
+            foreach (var m in allMembers)
+            {
+                if (!clans.ContainsKey(m.ClanName))
+                    clans[m.ClanName] = new List<string>();
+
+                if (playerStats.TryGetValue(m.SteamID, out var name))
+                    clans[m.ClanName].Add(name);
+                else
+                    clans[m.ClanName].Add($"Unknown({m.SteamID})");
+            }
+
+            return clans;
+        }
+
+        public static PlayerStats GetStats(string name)
+        {
+            return DatabaseWrapper.Instance.Collection.FindById(name) ?? new PlayerStats { Name = name };
+        }
+
+        public static void BufferPvPStat(string name, ulong steamID, bool isKill, bool isDeath, bool isAssist)
+        {
+            lock (_lock)
+            {
+                if (!_pending.TryGetValue(name, out var stats))
                 {
                     stats = new PlayerStats
                     {
@@ -31,37 +77,69 @@ namespace CustomKill.Database
                         MaxStreak = 0,
                         KillStreak = 0
                     };
-
-                    collection.Insert(stats);
+                    _pending[name] = stats;
                 }
-
-                Plugin.Logger.LogInfo($"Registering PvP stats for {name} - Kill: {isKill}, Death: {isDeath}, Assist: {isAssist}");
 
                 if (isKill)
                 {
-                    stats.Kills = (stats.Kills ?? 0) + 1;
-                    stats.KillStreak = (stats.KillStreak ?? 0) + 1;
-
-                    if (stats.KillStreak > stats.MaxStreak)
-                        stats.MaxStreak = stats.KillStreak;
+                    stats.Kills++;
+                    stats.KillStreak++;
+                    if (stats.KillStreak > stats.MaxStreak) stats.MaxStreak = stats.KillStreak;
                 }
 
                 if (isDeath)
                 {
-                    stats.Deaths = (stats.Deaths ?? 0) + 1;
+                    stats.Deaths++;
                     stats.KillStreak = 0;
                 }
 
                 if (isAssist)
                 {
-                    stats.Assists = (stats.Assists ?? 0) + 1;
+                    stats.Assists++;
                 }
-
-                collection.Update(stats);
             }
-            catch (Exception ex)
+        }
+
+        private static async Task FlushLoop()
+        {
+            while (_running)
             {
-                Plugin.Logger.LogError($"[PvPStatsService] Error while registering: {ex.Message}");
+                Flush();
+                await Task.Delay(5000);
+            }
+        }
+
+        private static void Flush()
+        {
+            Dictionary<string, PlayerStats> copy;
+            lock (_lock)
+            {
+                if (_pending.Count == 0) return;
+                copy = new(_pending);
+                _pending.Clear();
+            }
+
+            var collection = DatabaseWrapper.Instance.Collection;
+
+            foreach (var pair in copy)
+            {
+                var stats = pair.Value;
+                var existing = collection.FindById(stats.Name);
+
+                if (existing == null)
+                {
+                    collection.Insert(stats);
+                }
+                else
+                {
+                    existing.Kills = (existing.Kills ?? 0) + stats.Kills;
+                    existing.Deaths = (existing.Deaths ?? 0) + stats.Deaths;
+                    existing.Assists = (existing.Assists ?? 0) + stats.Assists;
+                    existing.KillStreak = stats.KillStreak;
+                    if (existing.MaxStreak < stats.MaxStreak) existing.MaxStreak = stats.MaxStreak;
+
+                    collection.Update(existing);
+                }
             }
         }
 
@@ -69,38 +147,12 @@ namespace CustomKill.Database
         {
             var collection = DatabaseWrapper.Instance.Collection;
 
-            // Find existing or create new with a proper SteamID
             var stats = collection.FindById(name)
-                     ?? new PlayerStats { Name = name, SteamID = steamID };
+                         ?? new PlayerStats { Name = name, SteamID = steamID };
 
-            // Coalesce null to 0, then add
             stats.Damage = (stats.Damage ?? 0) + amount;
 
-            // Upsert will insert if new, or update if existing
             collection.Upsert(stats);
-        }
-
-        public static Dictionary<string, List<string>> GetAllClans()
-        {
-            var db = DatabaseWrapper.Instance;
-
-            // Fetch all clan member records
-            var allMembers = db.ClanMembersCollection.FindAll().ToList();
-            var playerStats = db.Collection.FindAll().ToDictionary(p => p.SteamID, p => p.Name);
-
-            // Group by clan and resolve names
-            var clans = allMembers
-                .GroupBy(m => m.ClanName)
-                .ToDictionary(
-                    g => g.Key,
-                    g => g.Select(m =>
-                        playerStats.TryGetValue(m.SteamID, out var name)
-                            ? name
-                            : $"Unknown({m.SteamID})"
-                    ).ToList()
-                );
-
-            return clans;
         }
 
         public static void RegisterDamageTaken(string name, ulong steamID, int amount)
@@ -108,31 +160,11 @@ namespace CustomKill.Database
             var collection = DatabaseWrapper.Instance.Collection;
 
             var stats = collection.FindById(name)
-                     ?? new PlayerStats { Name = name, SteamID = steamID };
+                         ?? new PlayerStats { Name = name, SteamID = steamID };
 
             stats.DamageTaken = (stats.DamageTaken ?? 0) + amount;
 
             collection.Upsert(stats);
-        }
-
-        public static Dictionary<string, PlayerStats> GetAllStats()
-        {
-            var collection = DatabaseWrapper.Instance.Collection;
-            return collection.FindAll().ToDictionary(ps => ps.Name, ps => ps);
-        }
-
-        public static PlayerStats GetStats(string name)
-        {
-            var collection = DatabaseWrapper.Instance.Collection;
-            // Note: this returns a fresh PlayerStats if none existed, but does not persist it.
-            return collection.FindById(name)
-                   ?? new PlayerStats { Name = name };
-        }
-
-        public static void Init()
-        {
-            _ = DatabaseWrapper.Instance;
-            Plugin.Logger.LogInfo("[PvPStatsService] Database initialized.");
         }
     }
 }

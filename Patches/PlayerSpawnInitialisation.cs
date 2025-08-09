@@ -1,4 +1,5 @@
-﻿using CustomKill.Database;
+﻿using System;
+using CustomKill.Database;
 using CustomKill.Services;
 using HarmonyLib;
 using ProjectM;
@@ -6,6 +7,7 @@ using ProjectM.Network;
 using Stunlock.Core;
 using Unity.Collections;
 using UnityEngine;
+using Unity.Entities;
 
 namespace CustomKill.Patches
 {
@@ -31,11 +33,34 @@ namespace CustomKill.Patches
 
                 var user = entityManager.GetComponentData<User>(userEntity);
                 var characterName = user.CharacterName.ToString();
+                var steamID = user.PlatformId;
 
                 if (!string.IsNullOrWhiteSpace(characterName))
                 {
                     Debug.Log($"[CustomKill] New player detected: {characterName}.");
                 }
+
+                // Clan registration logic
+                Entity clanEntity = user.ClanEntity._Entity;
+                if (clanEntity == Entity.Null || !entityManager.HasComponent<ClanTeam>(clanEntity)) continue;
+
+                var clanTeam = entityManager.GetComponentData<ClanTeam>(clanEntity);
+                var clanName = clanTeam.Name.ToString();
+                var recordId = $"{steamID}:{clanName}";
+
+                var existing = DatabaseWrapper.Instance.ClanMembersCollection.FindById(recordId);
+                if (existing != null) continue;
+
+                var record = new ClanMemberRecord
+                {
+                    Id = recordId,
+                    SteamID = steamID,
+                    ClanName = clanName,
+                    JoinedAt = DateTime.UtcNow // store in UTC for proper cutoff
+                };
+
+                DatabaseWrapper.Instance.ClanMembersCollection.Upsert(record);
+                Plugin.Logger.LogInfo($"[CustomKill] Registered {characterName} to clan '{clanName}' at {record.JoinedAt}.");
             }
 
             entities.Dispose();

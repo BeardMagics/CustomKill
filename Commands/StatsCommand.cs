@@ -1,10 +1,16 @@
 ﻿using CustomKill.Config;
 using CustomKill.Database;
 using CustomKill.Utils;
+using BepInEx;
 using ProjectM;
 using ProjectM.Network;
 using System.Linq;
+using System.Threading.Tasks;
 using Unity.Entities;
+using System;
+using System.IO;
+using System.Text;
+using System.Collections.Generic;
 using VampireCommandFramework;
 
 namespace CustomKill.Commands
@@ -62,11 +68,30 @@ namespace CustomKill.Commands
 
             ctx.Reply(message);
         }
-        
+
         [Command("ptd", description: "Post top player and clan stats to Discord", adminOnly: true)]
-        public static void PostStatsToDiscord(ChatCommandContext ctx)
+        public static async Task PostStatsToDiscord(ChatCommandContext ctx)
         {
-            DiscordBroadcaster.PostTopStatsToDiscord(ctx);
+            try
+            {
+                await DiscordBroadcaster.PostTopStatsToDiscord(ctx);
+            }
+            catch (Exception ex)
+            {
+                Plugin.Logger.LogError($"[FAIL] .ptd command crash: {ex}");
+                ctx.Reply("[ FAIL ] Failed to post stats. Check logs.");
+
+                // Log crash to file
+                string folderPath = Path.Combine(Paths.BepInExRootPath, "Logs");
+                Directory.CreateDirectory(folderPath);
+                string logFile = Path.Combine(folderPath, "customkill_log.log");
+
+                File.AppendAllText(logFile,
+                    $"[{DateTime.Now}] .ptd command crash:\n" +
+                    $"Message: {ex.Message}\n" +
+                    $"Stack Trace:\n{ex.StackTrace}\n\n");
+            }
         }
+
     }
 }

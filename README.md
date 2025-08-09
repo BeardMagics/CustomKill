@@ -1,6 +1,6 @@
 # 💀 CustomKill
 
-**CustomKill** A custom V-Rising killfeed plugin utilizing existing foundations, developed for servers with more customization options for Admins, and easier configuration.
+**CustomKill** A custom V-Rising killfeed plugin utilizing existing foundations, made for easier configuration and customization for server owners.
 Originally forked from BestKillfeed + PvP Details to use existing framework/foundations.
 Credits and copyright: 
 Credit for original author(s)
@@ -33,6 +33,23 @@ Credit for original author(s)
 
 ## 📊 Custom Commands
 
+#### `.pi` – Player Info
+- Displays detailed **player info**:
+  - Name, clan, level, clan members, and connection status
+  - Name in **green** = connected  
+  - Name in **red** = offline
+  - Credit yet again to Sunrise (left this system in place)
+  
+#### `.stats` - Stats
+- Displays users stats including:
+  - Damage, Kills, Deaths, Assists, Killstreak, Max Killstreak
+  - Future: ~~damage tracking~~ (DONE) , assist tracking (Needs testing)
+
+#### `.kd` & `.kda`
+- Display your Kill/Death or K/D/Assist ratio
+  - Utilizes simple K/D and K/D/A math
+  - Added to eliminate need for additional plugins and for simplicity
+
 #### `.top` [category] – Leaderboard (top 5 players)
 - Displays an aesthetic **leaderboard** with:
   - Kills, deaths, max killstreaks
@@ -44,24 +61,23 @@ Credit for original author(s)
 - Wipes database of player information, clan association, members, and stats
   - Prompt system to avoid accidental deletion ( `.y` or `.n` )
   - Future TODO: ~~Export database to file~~ (DONE) | ~~Discord command to commit stats~~ (DONE)
+  
+#### `.exportstats` - Export Stats
+- Writes all stats to 2 separate HTML files currently
+ - Designed for easier reading/tracking
+  - Found in CustomKill/Exports folder when searching for the files
+  - Writes a Player stats HTML based on the wipe cycle
+  - Writes a Clan stats HTML based on the wipe cycle
+  - This command is meant to be used at the end of your wipe cycle (I highly recommend not using it for more than its intention)
+  - File names: WipeCycle_PlayerStats.html , WipeCycle_ClanStats.html
 
 #### `.ptd` - Post To Discord
 - Post to discord command unification (post stats to a discord webhook)
   - Uses a secondary webhook URL entry in main config (customkill.cfg)
   - Will post the top 10 players and top 5 clans.
   - Output lists player names and clan names in bold for easier reading
+   - Has been confirmed working as of 7/22/25
  
-#### `.stats` - Stats
-- Displays users stats including:
-  - Damage, Kills, Deaths, Assists, Max Killstreakd
-  - Future: ~~damage tracking~~ (DONE) , assist tracking (Needs testing)
-
-#### `.pi` – Player Info
-- Displays detailed **player info**:
-  - Name, clan, level, clan members, and connection status
-  - Name in **green** = connected  
-  - Name in **red** = offline
-  - Credit yet again to Sunrise (left this system in place)
 ---
 
 ## ⚙️ Easy Configuration
@@ -76,7 +92,7 @@ Credit for original author(s)
 ## 🎨 Color Settings (.top / .stats)
 - Customizable color settings
   - Title (change appearance when --Top 5 players-- or --Username Stats-- is read from config)
-  - Kills/Deaths/Assists/Maxstreak
+  - Damage/Kills/Deaths/Assists/Killstreak/Maxstreak
   - Customizable for both .top and .stats respectively
 
 ---
@@ -86,7 +102,6 @@ Credit for original author(s)
   - Config file of CustomKill.cfg
   - Configurable to set each category as viewable by all or by admin
   - Config flag field: `RestrictKillsToAdmin` = `boolean` (true / false)
-  - Level Service Mode to track players by highest gearscore or GS at time of kill ( 1 or 2 )
 
 ---
 
